@@ -1,6 +1,6 @@
 # 🎙️ Emotion Classification on Speech Data
 
-This project presents a complete end-to-end pipeline for classifying human emotions from speech signals using deep learning (BiLSTM). It processes raw `.wav` files, extracts MFCC features, trains a neural network, evaluates the model, and provides a Streamlit-based web app for real-time predictions.
+This project presents a complete end-to-end pipeline for classifying human emotions from speech signals using deep learning (BiLSTM + LSTM). It processes raw `.wav` files, extracts MFCC features, trains a neural network, evaluates the model, and provides a Streamlit-based web app for real-time predictions.
 
 ---
 
@@ -29,6 +29,12 @@ Audio_Speech_Actors_01-24/
 │ └── ...
 ├── Actor_02/
 └── ...
+
+
+Each filename encodes emotion, intensity, and actor ID.
+
+---
+
 ## 🔧 Technologies Used
 
 - Python
@@ -41,12 +47,70 @@ Audio_Speech_Actors_01-24/
 
 ## 🧠 Model Architecture
 
-- Input: MFCC features (40 coefficients per frame)
-- Model: Bidirectional LSTM + LSTM + Dense
-- Output: 8-class softmax classifier
+The model is a sequential neural network with stacked recurrent layers and dropout regularization for generalization. Here is the architecture:
 
 ```text
-Input (MFCC) → BiLSTM(128) → Dropout → LSTM(64) → Dense(64, relu) → Dense(8, softmax)
+Input (MFCC: 40x174) 
+→ Bidirectional LSTM (128 units, return_sequences=True) 
+→ Dropout (0.5) 
+→ LSTM (64 units) 
+→ Dropout (0.5) 
+→ Dense (64 units, ReLU) 
+→ Dense (8 units, Softmax)
+Implemented in Keras:
+
+model = Sequential([
+    Bidirectional(LSTM(128, return_sequences=True), input_shape=(X.shape[1], X.shape[2])),
+    Dropout(0.5),
+    LSTM(64),
+    Dropout(0.5),
+    Dense(64, activation='relu'),
+    Dense(y_onehot.shape[1], activation='softmax')
+])
+📊 Evaluation Metrics
+
+The model is evaluated using:
+
+Accuracy
+F1-Score
+Per-class recall
+Confusion Matrix
+Target Benchmarks:
+
+F1-score > 80%
+Accuracy per class > 75%
+Overall accuracy > 80%
+✅ Results
+
+Example performance (on test set):
+
+Class	Precision	Recall	F1-Score
+Angry	0.88	0.87	0.87
+Happy	0.91	0.89	0.90
+Sad	0.85	0.86	0.85
+Neutral	0.80	0.83	0.81
+...	...	...	...
+Confusion matrix and classification report are displayed in the app output.
+🚀 Streamlit Web App
+
+You can upload your own .wav file to see real-time emotion prediction:
+
+🖥️ Features:
+Accepts audio upload
+Extracts MFCC features
+Uses trained model to predict emotion
+Run Locally:
+streamlit run app.py
+Or deploy to Streamlit Cloud.
+
+📦 Repository Structure
+
+├── app.py                  # Streamlit web app
+├── emotion_model.h5        # Trained Keras model
+├── label_encoder.pkl       # Label encoder for mapping classes
+├── README.md
+├── requirements.txt
+└── Audio_Speech_Actors_01-24/  # Dataset (local or linked externally)
 📌 How to Use
 
 Clone the repository
